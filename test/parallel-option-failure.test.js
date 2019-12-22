@@ -34,6 +34,7 @@ jest.mock('jest-worker', () => {
         throw new Error('jest-worker failed');
       })),
       end: (workerEnd = jest.fn()),
+      getStderr: jest.fn(),
     };
   });
 });
