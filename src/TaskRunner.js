@@ -33,7 +33,12 @@ export default class TaskRunner {
 
   async run(tasks) {
     if (this.numberWorkers > 1) {
-      this.worker = new Worker(workerPath, { numWorkers: this.numberWorkers });
+      this.worker = new Worker(workerPath, {
+        numWorkers: this.numberWorkers,
+        forkOptions: {
+          silent: false,
+        },
+      });
     }
 
     return Promise.all(
