@@ -21,6 +21,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const workerPath = require.resolve('./worker');
 
+const showMemoryUsage = (step = '') => {
+  const used = process.memoryUsage().heapUsed / 1024 / 1024;
+  console.log(`Memory used ${step}: ${Math.round(used * 100) / 100} MB`);
+};
+
 class TaskRunner {
   constructor(options = {}) {
     this.options = options;
@@ -40,6 +45,7 @@ class TaskRunner {
     const cpus = _os.default.cpus() || {
       length: 1
     };
+    console.log('cpus', cpus)
     return parallel === true ? cpus.length - 1 : Math.min(Number(parallel) || 0, cpus.length - 1);
   }
 
@@ -61,7 +67,15 @@ class TaskRunner {
       });
     }
 
-    return Promise.all(tasks.map(task => {
+    console.log('tasks', tasks.length);
+
+    console.time('Process time');
+
+    console.log('process.pid', process.pid);
+
+    showMemoryUsage('before processing all records');
+
+    const tmp = Promise.all(tasks.map(task => {
       const enqueue = async () => {
         let result;
 
@@ -88,6 +102,12 @@ class TaskRunner {
 
       return enqueue();
     }));
+
+    showMemoryUsage('after processing all records');
+
+    console.timeEnd('Process time');
+
+    return tmp;
   }
 
   async exit() {
